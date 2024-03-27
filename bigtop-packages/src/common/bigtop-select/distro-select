@@ -69,7 +69,9 @@ leaves = {
            "spark-historyserver" : "spark",
            "ranger-admin" : "ranger-admin",
            "ranger-usersync" : "ranger-usersync",
-           "ranger-tagsync" : "ranger-tagsync"
+           "ranger-tagsync" : "ranger-tagsync",
+           "livy-server" : "livy",
+           "livy-client" : "livy"
 }
 
 # Define the aliases and the list of leaves they correspond to
@@ -82,7 +84,8 @@ aliases = {
               "phoenix-client",
               "zookeeper-client",
               "flink-client",
-              "spark-client"],
+              "spark-client",
+              "livy-client"],
   "hadoop-hdfs-server": ["hadoop-hdfs-datanode",
                          "hadoop-hdfs-journalnode",
                          "hadoop-hdfs-namenode",
