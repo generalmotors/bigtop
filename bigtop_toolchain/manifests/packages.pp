@@ -70,10 +70,16 @@ class bigtop_toolchain::packages {
         "yasm"
       ]
 
-      if ($operatingsystem == 'Fedora' or $operatingsystemmajrelease !~ /^[0-7]$/) {
+      if ($operatingsystem == 'Fedora') {
         $pkgs = concat($_pkgs, ["python2-devel", "libtirpc-devel", "cmake"])
-      } else {
-        $pkgs = concat($_pkgs, ["python-devel", "cmake3"])
+      } else { # RedHat, CentOS, Rocky
+        if (0 <= versioncmp($operatingsystemmajrelease, '9')) {
+          $pkgs = concat($_pkgs, ["libtirpc-devel", "cmake"])
+        } elsif (0 == versioncmp($operatingsystemmajrelease, '8')) {
+          $pkgs = concat($_pkgs, ["python2-devel", "libtirpc-devel", "cmake"])
+        } elsif (0 == versioncmp($operatingsystemmajrelease, '7')) {
+          $pkgs = concat($_pkgs, ["python-devel", "cmake3"])
+        }
       }
     }
     /(?i:(SLES|opensuse))/: { $pkgs = [
@@ -397,18 +403,32 @@ class bigtop_toolchain::packages {
   }
 
   # download python 2.7.14 for openEuler docker slaves
-  if $operatingsystem == 'openEuler' {
+  # and RHEL9 based distros
+  if ($operatingsystem == 'openEuler' or
+      ($osfamily == 'RedHat' and $operatingsystem != 'Fedora' and 0 <= versioncmp($operatingsystemmajrelease, '9'))) {
     exec { "download_python2.7":
       cwd => "/usr/src",
       command => "/usr/bin/wget https://www.python.org/ftp/python/2.7.14/Python-2.7.14.tgz --no-check-certificate && /usr/bin/mkdir Python-2.7.14 && /bin/tar -xvzf Python-2.7.14.tgz -C Python-2.7.14 --strip-components=1 && cd Python-2.7.14",
       creates => "/usr/src/Python-2.7.14",
     }
 
-    exec { "install_python2.7":
-      cwd => "/usr/src/Python-2.7.14",
-      command => "/usr/src/Python-2.7.14/configure --prefix=/usr/local/python2.7.14 --enable-optimizations && /usr/bin/make -j8 && /usr/bin/make install -j8",
-      require => [Exec["download_python2.7"]],
-      timeout => 3000
+    case $operatingsystem {
+      'openEuler': {
+        exec { "install_python2.7":
+          cwd => "/usr/src/Python-2.7.14",
+          command => "/usr/src/Python-2.7.14/configure --prefix=/usr/local/python2.7.14 --enable-optimizations && /usr/bin/make -j8 && /usr/bin/make install -j8",
+          require => [Exec["download_python2.7"]],
+          timeout => 3000
+        }
+      }
+      default: {
+        exec { "install_python2.7":
+          cwd => "/usr/src/Python-2.7.14",
+          command => "/usr/src/Python-2.7.14/configure --prefix=/usr/local/python2.7.14 && /usr/bin/make -j8 && /usr/bin/make install -j8",
+          require => [Exec["download_python2.7"]],
+          timeout => 3000
+        }
+      }
     }
 
     exec { "ln python2.7":

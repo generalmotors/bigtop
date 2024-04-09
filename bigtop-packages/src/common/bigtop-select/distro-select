@@ -72,6 +72,9 @@ leaves = {
            "ranger-tagsync" : "ranger-tagsync",
            "livy-server" : "livy",
            "livy-client" : "livy"
+           "alluxio": "alluxio",
+           "alluxio-master": "alluxio",
+           "alluxio-worker": "alluxio"
 }
 
 # Define the aliases and the list of leaves they correspond to
@@ -134,7 +137,8 @@ command_symlinks = {
   "spark-shell" : "spark-client/../../bin/spark-shell",
   "spark-sql" : "spark-client/../../bin/spark-sql",
   "spark-submit" : "spark-client/../../bin/spark-submit",
-  "pyspark" : "spark-client/../../bin/pyspark"
+  "pyspark" : "spark-client/../../bin/pyspark",
+  "alluxio" : "alluxio/bin/alluxio"
 }
 
 
